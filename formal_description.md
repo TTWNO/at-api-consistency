@@ -55,3 +55,47 @@ More formally, for any tree state `S` (where `S` is a connected DAG) and modific
 
 This can also be said to be the consistency model.
 
+## Solutions
+
+For each problem faced in the previous section, we will describe what a consistent, atomic, isolated API would provide compared to the original AT-SPI model.
+
+### `aria-live` and `aria-atomic` regions
+
+Instead of the following information flow:
+
+1. Application sends a `NewNode` event with partial information.
+2. Application sends a `TextInserted` event with the next text.
+3. The screen reader asks for the `aria-*` properties from the application.
+4. ??? TODO
+
+Instead, the following flow is suggested:
+
+1. Application sends a `NewNode` event _which describes all `aria-*` attributes in one event_.
+2. The application sends a text changed event.
+3. The screen reader is able to respond by generating synthetic speech, without an IPC call back to the application.
+
+This will be refered to in the future as the "push-based" protocol.
+Push all known attributes to the screen reader in advance of it being asked for.
+This allows the screen reader to have an _up to date_ copy of the UI state at any given point.
+
+Formally, this is the description of a **replication channel**.
+The screen reader can then act upon its known state at a point in time.
+
+### Parent/Child Relationships & New Nodes
+
+The separation of new nodes from the events which position them in the tree cause a temporary inconsistency in the tree structure (making it either not a tree, or an incomplete tree).
+These events will be coalesced into single, atomic events preserving the structure of the original tree before the mutation.
+
+So now, new node events _will also include its index as a child_ in order to place it within the tree structure.
+Instead of:
+
+1. `NewNode(parent, ...)`
+2. `NewCHild(parent, child, index)`
+
+Now the events are sent in a single event:
+
+1. `NewNode(parent, index, ...)
+
+No child mutation events need to be sent.
+The reciprocal events for deletions would be implemented in the same way.
+
