@@ -36,3 +36,22 @@ In general, current AT APIs do _not_ assume a consistent model, and instead just
 - Events which "go together" (i.e., are one "unit of change") must come as a package deal: adding a node with a given parent/child relationship, attributes, etc. must come all together instead of disparate events with undefined ordering.
 	- Basiccally, AT APIs should be atomic.
 
+#### Test Cases & Consistency Model
+
+This property can be tested with specific test cases—specifically, is the view the screen reader has a directed asyclic graph (connected tree) at all times (i.e., between each event).
+Fuzz testing with the following tree/event generation could generate concrete failure modes:
+
+```rust
+// assume the `Tree::random_generate()` method creates a valid, random tree.
+let mut tree = Tree::random_generate();
+// This will randomly generate an event
+let event = Event::random_generate();
+assert!(tree.is_connected_dag());
+tree.apply(event);
+assart!(tree.is_connected_dag());
+```
+
+More formally, for any tree state `S` (where `S` is a connected DAG) and modification `M`, applying modification `M` to `S` will always result in the same typed output.
+
+This can also be said to be the consistency model.
+
