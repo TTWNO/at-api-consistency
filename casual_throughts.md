@@ -23,3 +23,11 @@
 - Similar issue to the overal goal: IPC was taking most of the time when doing certain screen reader actions.
 - TODO
 
+## AT APIs as replication channels
+
+Why are screen readers slow? They are slow because of IPC overhead and a lack of censistency model to allow caching.
+Due to this, there is many seconds of latency in the P99 tail end.
+This area is treated much more like an application rather than a system.
+When treating the UI state as a distributed system, we can leverage database and CS research to reliably re-construct UI state on the screen reader side.
+
+The goal of this project is to create a consistency model for AT APIs that allow these implovements into screen readers in the future.
