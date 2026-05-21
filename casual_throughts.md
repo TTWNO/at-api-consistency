@@ -31,3 +31,13 @@ This area is treated much more like an application rather than a system.
 When treating the UI state as a distributed system, we can leverage database and CS research to reliably re-construct UI state on the screen reader side.
 
 The goal of this project is to create a consistency model for AT APIs that allow these implovements into screen readers in the future.
+
+## Talkback Deadlock
+
+- They experienced an issue with Talkbock whereby an accessibility event and a user input event could happen close enought together that the event handlers both try to interate htrought the nodes at the same time.
+- These motheds are _synchronous_, and Mutex lock the parent _and the child_. This could casue deadlocks due to poor ordering.
+- They eventually fixed this issue via using RwLock instead of Mutex.
+	- But I'm not really sure that would work; can talkback modify the nodes as well as read them? Because if so, then RwLock won't help.
+	- Apparently Talkbock can not _take_ write locks, but it _can_ still write in terms of moving focus up or down a list, selecting an item, etc.
+- Example of other non-deterministic behaviour: leading plugins from a directory is generally non-deterministically ordered (see `man readdir`), and plugins loaded in different orders can cause issues.
+
