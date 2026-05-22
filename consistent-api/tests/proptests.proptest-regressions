@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc a620940bd1ddf0ba2ce0eea07ac5784259a6ce4efa690f9f9c76b673a01837d4 # shrinks to node = Node { parent: NodeId(0), children: [], text: "", role: Ruler }
+cc 6ab4f9a7fcacaf0eaa09bcf905c61124b8b8a1677cc100574275a2731cf2898f # shrinks to node = Node { parent: NodeId(0), children: [], text: "", role: Invalid }
+cc 87fd3602ccc885c06c4d62a8f965de42a2d952329546867993c8697673a1ce39 # shrinks to nodes = []

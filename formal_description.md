@@ -129,4 +129,22 @@ The screen reader can now use this data to respond to events in the order that a
 - The screen reader now has the `aria-\*` attribute list, and acts on the event with a perfect copy of the tree at the time of the text changed event. It can speak the inserted text, the entire text buffer, or nothing based on the attribute mix.
 - When the next event is the deletion, the element is now removed without conflicting with the `aria-\*` attributes.
 
+## How To Encode This In Code
 
+Different languages will have different ways to force compliance.
+Here, we will use Rust as the reference implementation, but implementations in other languages must be possible and simple to implement.
+
+### Rust Methods To Enforce The API
+
+Rust has three ways to force compliance at different stages.
+
+1. Algabraic data types (advanced enums); this allows your type to encode both a state _and associated data_ without unions.
+2. Typestates: creates a `Struct\<S\>`, where `S` is the state within a state machine. 
+3. Traits. With traits, applying a particular event after another event that conflicts can cause compiler errors. An exapmle that stops deadlocks in networking code can be found in the Google networking code for Fucsha. (https://docs.rs/surelock/latest/surelock/)
+
+Throught a combination of these techniques, a compile-time checked API should be within reach.
+Especially if an atomic commit of some set and full transaction (think like a visual frame) can be type-controlled.
+
+#### Formal Spec
+
+See [`formal_spec.md`]
