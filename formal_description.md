@@ -55,6 +55,12 @@ More formally, for any tree state `S` (where `S` is a connected DAG) and modific
 
 This can also be said to be the consistency model.
 
+### Sparse Interfaces
+
+A non-consistency issue with these APIs is the lack of support for sparse interfaces.
+For spreadsheet applications, the entire spreadsheet (generally thousands of columns by millions of rows) should be exposed via the AT API, along with the content in the various cells.
+Sparse interfaces require overlay representations similar in spirit to sparse matrices: define an N by M table with individual cells defined one-by-one.
+
 ## Solutions
 
 For each problem faced in the previous section, we will describe what a consistent, atomic, isolated API would provide compared to the original AT-SPI model.
@@ -98,4 +104,29 @@ Now the events are sent in a single event:
 
 No child mutation events need to be sent.
 The reciprocal events for deletions would be implemented in the same way.
+In the case of children removal, the additional fields are net needed, but inserting without all fields specified would be prohibited.
+
+### Incramental Updates
+
+Additionally specified in the API is an ordering for all updates.
+For example, if an entire subtree needs to be added to the view, it must be done in order:
+
+1. The root node (with no children specified). This is a complete tree.
+2. The children of the root node, including their indicies. This creates a tree with exactly two levels, the root and its children.
+3. Continue recursively down the tree.
+
+If incremental updates become a performance bottleneck, consider tree diff events.
+Each child can become its own thread of computation, since all appends will be applied further down the hirearchy.
+
+Of note: the events do not need to be separated by new "frames" of data so to speak; they can be sent in one large change list.
+
+### Screen Reader Usage
+
+The screen reader can now use this data to respond to events in the order that are recieved with a _perfect view at that point in time_. 
+
+- To use the `aria-live`/`aria-atomic` example, the node is created with its `aria-\*` attributes exposed.
+- Then, the text changed evenvt comes in.
+- The screen reader now has the `aria-\*` attribute list, and acts on the event with a perfect copy of the tree at the time of the text changed event. It can speak the inserted text, the entire text buffer, or nothing based on the attribute mix.
+- When the next event is the deletion, the element is now removed without conflicting with the `aria-\*` attributes.
+
 
